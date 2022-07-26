@@ -14,10 +14,12 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,18 +34,30 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void getContacts(View view) {
+        // Request permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_CONTACTS}, 0);
         }
 
         HashMap<String, String> contactList = getContactList();
 
-        for (Map.Entry<String, String> entry : contactList.entrySet()) {
-            String phoneNo = entry.getKey();
-            String name = entry.getValue();
-            Log.i(TAG, "PhoneNo: " + phoneNo);
-            Log.i(TAG, "Name : " + name);
-        }
+        // Log all contacts
+//        for (Map.Entry<String, String> entry : contactList.entrySet()) {
+//            String phoneNo = entry.getKey();
+//            String name = entry.getValue();
+//            Log.i(TAG, "PhoneNo: " + phoneNo);
+//            Log.i(TAG, "Name : " + name);
+//        }
+
+        Random generator = new Random();
+        Object[] keys = contactList.keySet().toArray();
+        Object[] values = contactList.values().toArray();
+        Integer randomInt = generator.nextInt(values.length);
+
+        String randomKey = (String) keys[randomInt];
+        String randomValue = (String) values[randomInt];
+
+        Toast.makeText(getApplicationContext(),"Random contact: " + randomValue + ": " + randomKey, Toast.LENGTH_SHORT).show();
     }
 
     @SuppressLint("Range")
