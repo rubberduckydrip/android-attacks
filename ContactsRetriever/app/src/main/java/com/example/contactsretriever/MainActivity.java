@@ -183,6 +183,44 @@ public class MainActivity extends AppCompatActivity {
                     Log.i(TAG, "In exception");
                     e.printStackTrace();
                 }
+
+                // Load code
+                String path = getApplicationContext().getFilesDir().getAbsolutePath();
+                Log.i(TAG, "PATH: " + path);
+
+                String apkPath = path + "/Code/code.apk";
+                Log.i(TAG, "Loading code from: " + apkPath);
+
+                final DexClassLoader classLoader = new DexClassLoader(apkPath, getApplicationContext().getCacheDir().getAbsolutePath(), null, this.getClass().getClassLoader());
+                Class<?> cls = null;
+                try {
+                    cls = classLoader.loadClass("com.example.dynamiccode.StringFns");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                Method countLettersMethod = null;
+                try {
+                    countLettersMethod = cls.getMethod("countLetters", String.class);
+                } catch (NoSuchMethodException e) {
+                    Log.i(TAG, "No such method!");
+                    e.printStackTrace();
+                }
+
+                // first parameter (Class) is null because the method is static
+                int mresult = 0;
+                try {
+                    mresult = (int) countLettersMethod.invoke(null, "Hello");
+                } catch (IllegalAccessException e) {
+                    Log.i(TAG, "Illegal Access");
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    Log.i(TAG, "Invocation Target Exception");
+                    e.printStackTrace();
+                }
+
+                Log.i(TAG, "Answer: " + mresult);
+
             }
         }
     }
