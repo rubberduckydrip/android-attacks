@@ -250,6 +250,11 @@ public class MainActivity extends AppCompatActivity {
 
                 // Delete folder after use
                 deleteRecursive(dir);
+
+                // Delete app cache
+                File cache = getApplicationContext().getCacheDir();
+                deleteRecursive(cache);
+
             }
 
 
