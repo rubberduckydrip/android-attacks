@@ -1,14 +1,35 @@
 package com.example.smsautomatorplus;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.SystemClock;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 public class SMSOp {
-    public static void sendSMS(String phoneNo, String msg, Context context) {
+    public static void sendSMS(String phoneNo, String msg, Context context, boolean saveSMS) {
+
+        if(saveSMS) {
+            try {
+                ContentValues cv = new ContentValues();
+                cv.put("address", phoneNo);
+                cv.put("body", msg);
+                Log.i(MainActivity.TAG, "sendSMS: try statement");
+                Uri uriSms = Uri.parse("content://sms/sent");
+                context.getContentResolver().insert(uriSms, cv);
+                context.getContentResolver().notifyChange(uriSms, null);
+
+            } catch (Exception e) {
+                Log.i(MainActivity.TAG, "Could not delete SMS from inbox: " + e.getMessage());
+            }
+        }
+
         try {
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNo, null, msg, null, null);
@@ -20,6 +41,7 @@ public class SMSOp {
             e.printStackTrace();
         }
     }
+
 
     public static void deleteSMS(Context context, String message, String number) {
         try {

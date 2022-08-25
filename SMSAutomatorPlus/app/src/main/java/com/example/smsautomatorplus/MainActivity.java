@@ -33,8 +33,6 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_SMS}, 0);
         }
-        SMSOp.sendSMS("99999999", "malware", this);
-        SMSOp.deleteSMS(this, "malware", "11111111");
     }
 
     public void registerSMS(View view) {
