@@ -12,9 +12,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -36,6 +38,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void registerSMS(View view) {
+
+        // Make sure app is default SMS app
+        final String myPackageName = getPackageName();
+        if (!Telephony.Sms.getDefaultSmsPackage(this).equals(myPackageName)) {
+            // App is not default.
+            Toast.makeText(this, "Please set app as default first", Toast.LENGTH_SHORT).show();
+
+            // Open interface for user to switch
+            Intent intent =
+                    new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+            intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME,
+                    myPackageName);
+            startActivity(intent);
+            return;
+        }
+
         // Get Contact
         EditText text = (EditText)findViewById(R.id.contact);
         String contact = text.getText().toString();
@@ -62,22 +80,5 @@ public class MainActivity extends AppCompatActivity {
         alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()
                 + (i * 1000), pendingIntent);
         Toast.makeText(this, "Message will be sent in " + i + " seconds",Toast.LENGTH_LONG).show();
-    }
-
-    public static void openSMSappChooser(Context context) {
-        PackageManager packageManager = context.getPackageManager();
-        ComponentName componentName = new ComponentName(context, MainActivity.class);
-        packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-
-        Intent selector = new Intent(Intent.ACTION_MAIN);
-        selector.addCategory(Intent.CATEGORY_APP_MESSAGING);
-        selector.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(selector);
-
-        packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DEFAULT, PackageManager.DONT_KILL_APP);
-    }
-
-    public void setDefaultSMSApp(View view) {
-        openSMSappChooser(getApplicationContext());
     }
 }
